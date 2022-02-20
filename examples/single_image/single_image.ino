@@ -1,6 +1,6 @@
 /*
  * This file is part of POV Staff project by Alexander Kirillov <shurik179@gmail.com>
- * See github.com/shurik179/povstaff for details
+ * See github.com/shurik179/pov-library for details
  * Distributed under the terms of MIT license; see LICENSE file in the repository for details.
  *
  *  Requires the following libraries:
@@ -22,10 +22,10 @@
  *
  * Before uploading the sketch to the staff, make sure to change the #define'd values to match your setup:
  *  NUM_PIXELS, LED_TYPE, COLOR_ORDER, PIN_MODE_SELECT, LINES_PER_SEC, IMAGE
- *  Also, for M4 based boards, make sure that in your Arduino IDE you have selected
+ *  Also, for M4 and RP2040 based boards, make sure that in your Arduino IDE you have selected
  *  Tools->USB stack: TinyUSB
  *  Finally it is assumed that you have already created the FAT filesystem on your
- *  flash memory, using SdFat_format example sketch from Sd_Fat library (Adafruit fork) 
+ *  flash memory, using SdFat_format example sketch from Sd_Fat library (Adafruit fork)
  */
 #include <FastLED.h>
 #include "staff.h"

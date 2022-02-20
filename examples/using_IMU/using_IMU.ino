@@ -1,6 +1,6 @@
 /*
  * This file is part of POV Staff project by Alexander Kirillov <shurik179@gmail.com>
- * See github.com/shurik179/povstaff for details
+ * See github.com/shurik179/pov-library for details
  * Distributed under the terms of MIT license; see LICENSE file in the repository for details.
  *
  *  Requires the following libraries:
@@ -22,7 +22,7 @@
  *
  * Before uploading the sketch to the staff, make sure to change the #define'd values to match your setup:
  *  NUM_PIXELS, LED_TYPE, COLOR_ORDER, PIN_MODE_SELECT, LINES_PER_SEC, IMAGE
- *  Also, for M4 based boards, make sure that in your Arduino IDE you have selected
+ *  Also, for M4 and RP2040 based boards, make sure that in your Arduino IDE you have selected
  *  Tools->USB stack: TinyUSB
  *  Finally it is assumed that you have already created the FAT filesystem on your
  *  flash memory, using SdFat_format example sketch from Sd_Fat library (Adafruit fork)
@@ -50,8 +50,8 @@
 
 // frame rate. Instead of using constant frame rate per second, we will adjust
 // depending on rotation speed
-// how many degrees of staff turn between successive lines?
 
+// how many degrees of staff turn between successive lines?
 #define DEG_PER_LINE 1.0f
 
 #define IMAGE "rg-lines.bmp"
@@ -86,8 +86,8 @@ void setup(){
         staff.begin(MODE_SHOW);
         //debugging
         Serial.begin(115200);
-        Serial.println("Starting...");
-        delay(500);
+        //Serial.println("Starting...");
+        //delay(500);
 
         // blink to indicate that staff is alive and working.
         // You can use any of predefined CRGB colors: https://github.com/FastLED/FastLED/wiki/Pixel-reference#predefined-colors-list
