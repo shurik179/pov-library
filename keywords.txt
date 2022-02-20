@@ -1,0 +1,131 @@
+#######################################
+# Syntax Coloring Map For RoverWing
+#######################################
+# Datatypes
+#######################################
+
+Rover		KEYWORD1
+motor_t 	KEYWORD1
+servo_t 	KEYWORD1
+sonar_t 	KEYWORD1
+motorconfig_t 	KEYWORD1
+driveconfig_t 	KEYWORD1
+location_t 	KEYWORD1
+
+#######################################
+# Methods and Functions
+#######################################
+begin                 	KEYWORD2
+beginVerbose          	KEYWORD2
+fwVersion             	KEYWORD2
+setLowVoltage         	KEYWORD2
+getAnalog             	KEYWORD2
+getVoltage            	KEYWORD2
+getAllAnalog          	KEYWORD2
+activateSonars        	KEYWORD2
+stopSonars            	KEYWORD2
+getSonar              	KEYWORD2
+getAllSonar           	KEYWORD2
+setServo              	KEYWORD2
+setAllServo           	KEYWORD2
+setServoRange         	KEYWORD2
+setMotorPwr           	KEYWORD2
+setAllMotorPwr        	KEYWORD2
+stopMotors            	KEYWORD2
+configureMotor        	KEYWORD2
+reverseMotor          	KEYWORD2
+setMotorSpeed         	KEYWORD2
+getPosition           	KEYWORD2
+getAllPosition        	KEYWORD2
+getSpeed              	KEYWORD2
+getAllSpeed           	KEYWORD2
+resetEncoder          	KEYWORD2
+resetAllEncoder       	KEYWORD2
+IMUbegin              	KEYWORD2
+IMUend                	KEYWORD2
+IMUisActive           	KEYWORD2
+IMUcalibrate           	KEYWORD2
+getOrientationQuat    	KEYWORD2
+getAccel              	KEYWORD2
+getGyro               	KEYWORD2
+getYaw                	KEYWORD2
+getPitch              	KEYWORD2
+getRoll               	KEYWORD2
+GPSbegin              	KEYWORD2
+GPSend                	KEYWORD2
+GPSstatus             	KEYWORD2
+getGPSlocation        	KEYWORD2
+saveGPSlocation       	KEYWORD2
+latitude              	KEYWORD2
+latitudeL             	KEYWORD2
+longitude             	KEYWORD2
+longitudeL            	KEYWORD2
+GPStimestamp          	KEYWORD2
+distanceTo            	KEYWORD2
+bearingTo             	KEYWORD2
+magBegin              	KEYWORD2
+magEnd                	KEYWORD2
+magStartCalibrati     	KEYWORD2
+magSetCalData         	KEYWORD2
+magStatus             	KEYWORD2
+magGetOffsets         	KEYWORD2
+getMagData            	KEYWORD2
+getHeading            	KEYWORD2
+setDeclination        	KEYWORD2
+setPixelCount         	KEYWORD2
+setPixelBrightness    	KEYWORD2
+setPixelRGB           	KEYWORD2
+setPixelHSV           	KEYWORD2
+setTopLED             	KEYWORD2
+showPixel             	KEYWORD2
+displayMessage        	KEYWORD2
+waitForButton         	KEYWORD2
+topDisplay            	KEYWORD2
+configureDrive        	KEYWORD2
+setDriveRampTime      	KEYWORD2
+startForward          	KEYWORD2
+startBackward         	KEYWORD2
+startTurn             	KEYWORD2
+stop                  	KEYWORD2
+distanceTravelled     	KEYWORD2
+goForward             	KEYWORD2
+goBackward            	KEYWORD2
+turn                  	KEYWORD2
+driveInProgress       	KEYWORD2
+
+#######################################
+# Constants
+#######################################
+ROVERWING_ADDRESS   	LITERAL1
+SERVO1          	LITERAL1
+SERVO2          	LITERAL1
+SERVO3          	LITERAL1
+SERVO4          	LITERAL1
+SONAR1          	LITERAL1
+SONAR2          	LITERAL1
+SONAR3          	LITERAL1
+MOTOR1          	LITERAL1
+MOTOR2          	LITERAL1
+SONAR1_ACT      	LITERAL1
+SONAR2_ACT      	LITERAL1
+SONAR3_ACT      	LITERAL1
+MOTOR_MODE_POWER	LITERAL1
+MOTOR_MODE_COAST	LITERAL1
+MOTOR_MODE_SPEEDPID 	LITERAL1
+RED             	LITERAL1
+BLUE            	LITERAL1
+GREEN           	LITERAL1
+YELLOW          	LITERAL1
+ORANGE          	LITERAL1
+WHITE           	LITERAL1
+OFF             	LITERAL1
+GPS_OFF         	LITERAL1
+GPS_WAITING     	LITERAL1
+GPS_OK          	LITERAL1
+MAG_OFF         	LITERAL1
+MAG_CALIBRATING 	LITERAL1
+MAG_OK          	LITERAL1
+TWO_LINE_FONT   	LITERAL1
+THREE_LINE_FONT 	LITERAL1
+DRIVE_STATUS_COMPLETE 	LITERAL1
+DRIVE_STATUS_INPROGRESS 	LITERAL1
