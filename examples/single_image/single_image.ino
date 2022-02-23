@@ -17,7 +17,7 @@
  *
  *  - otherwise, the staff goes into usual show mode, showing just one image (to
  *    select the image edit the line #define IMAGE below. The frame rate (i.e. how many
- *    lines to show pere second) is determined by value of LINES_PER_SEC below*
+ *    lines to show per second) is determined by value of LINES_PER_SEC below
  *
  *
  * Before uploading the sketch to the staff, make sure to change the #define'd values to match your setup:
