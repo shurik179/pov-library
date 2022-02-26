@@ -8,27 +8,26 @@
 #include "bmpimage.h"
 
 
-class POVstaff {
+class POV {
     public:
         CRGB * leds;
         bool paused;
 
-        POVstaff(uint16_t length, CRGB * l);
-        //POVstaff(uint16_t length, uint8_t dataPin, uint8_t clockPin);
+        POV(uint16_t length, CRGB * l);
         void begin(uint8_t mode);
 
 
         uint8_t mode() {return _mode;}
 
         void setPixel(uint16_t i, uint32_t c);
-        void clear();
+        void blank();
         void show();
         void setBrightness(uint8_t b);
 
         /* quickly blink each 8th LED red, for "I am alive" indication */
         void blink(CRGB color=CRGB::Red);
 
-        /* shows a value (0 -1.0) by proportion of LEDs on staff */
+        /* shows a value (0 -1.0) using LED staff as bar graph */
         void showValue(float v);
 
         /* Shows one line. line should be pointer to array which holds  pixel colors
@@ -44,6 +43,10 @@ class POVstaff {
          reads list of images from file and adds it to the staff  imageList
          */
         uint8_t addImageList(char * filename);
+        //remove all images from imagelist
+        void clearImageList();
+        //make first image of image list current
+        void firstImage();
 
         /* moves to the next image, making it current. If reached the end
          continues from first image

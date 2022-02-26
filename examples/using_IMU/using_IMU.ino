@@ -8,27 +8,38 @@
  *  Adafruit_TinyUSB
  *  Adafruit_SPIFlash
  *  Sd_Fat (adafruit fork)
+ *  Adafruit_Sensor
+ *  Adafruit_MPU6050
  *
+ * This is an example combining  POV library with  MPU6050 Inertial Motion Unit
+ * (IMU). It assumes that you have the IMU placed on the POV staff, with x-axis
+ * going along the staff, and  connected to the microcontroller uisng I2C bus.
  *
- * This is a simple test of the POV library. It functions as follows:
+ * It functions as follows:
  *  - if at startup pin PIN_MODE_SELECT (defined below) is pulled low, it puts the staff in
  *    image upload mode; if the staff is connected to the computer by USB cable, it appears
  *    as an external drive so you can drag and drop your BMP images to it
  *
- *  - otherwise, the staff goes into usual show mode, showing just one image (to
- *    select the image edit the line #define IMAGE below. The frame rate (i.e. how many
- *    lines to show pere second) is determined by value of LINES_PER_SEC below*
+ *  - otherwise, the staff goes into show mode, showing just one image (to
+ *    select the image edit the line #define IMAGE below). It uses the IMU to
+ *    detect is staff is at rest (horizontal, not moving). If it is, staff is blanked.
+ *    Otherwise, it will show the selected image; the frame rate (i.e. how many
+ *    lines to show per second) is adjusted depending on the rotation speed,
+ *    trying to keep number of lines per degree of rotation constant.
  *
  *
  * Before uploading the sketch to the staff, make sure to change the #define'd values to match your setup:
- *  NUM_PIXELS, LED_TYPE, COLOR_ORDER, PIN_MODE_SELECT, LINES_PER_SEC, IMAGE
- *  Also, for M4 and RP2040 based boards, make sure that in your Arduino IDE you have selected
+ *  NUM_PIXELS, LED_TYPE, COLOR_ORDER, PIN_MODE_SELECT, DEG_PER_LINE, IMAGE. Also
+ * check the MPU6050 I2C: depending on whether you pull pin of MPU6050 high or low,
+ * the address can be either 0x69 or 0x68.
+ *
+ *  For M4 and RP2040 based boards, make sure that in your Arduino IDE you have selected
  *  Tools->USB stack: TinyUSB
  *  Finally it is assumed that you have already created the FAT filesystem on your
  *  flash memory, using SdFat_format example sketch from Sd_Fat library (Adafruit fork)
  */
 #include <FastLED.h>
-#include "staff.h"
+#include <pov.h>
 #include "IMU.h"
 //number of pixels in your strip/wand
 #define NUM_PIXELS 30
@@ -59,10 +70,10 @@
 
 /* Global Variables */
 CRGB leds[NUM_PIXELS];
-POVstaff staff(NUM_PIXELS, leds);
+POV staff(NUM_PIXELS, leds);
 
 uint32_t lastIMUcheck = 0; //when did we last check IMU speed, in ms
-float speed=0.0; //staff rotation speed, in deg/s
+float speed=0.0;           //staff rotation speed, in deg/s
 
 
 
@@ -81,6 +92,8 @@ void setup(){
     //note: in this case, there should be no Serial.begin() before this, and no delay()
     if (digitalRead(PIN_MODE_SELECT)==LOW) {
         staff.begin(MODE_UPLOAD);
+        //do nothing else, do not run loop() -- just let TinyUSB do its job
+        while (1) yield();
     } else {
         //otherwise, regular show
         staff.begin(MODE_SHOW);
@@ -104,9 +117,10 @@ void setup(){
 
 }
 
+//note that loop() will only run in MODE_SHOW
 void loop(){
     if (millis()-lastIMUcheck > 100 ) {
-        //let's check if staff is at rest
+        //let's check if staff is at rest. To avoid overloading the MCU, we only do it 10 times/sec.
         lastIMUcheck = millis();
         staff.paused = IMUatRest();
         if (staff.paused) staff.clear();
@@ -116,7 +130,7 @@ void loop(){
     //how much has the staff turned since last update?
     float rotAngle = speed * staff.timeSinceUpdate() * 0.000001;
 
-    if ((staff.mode()==MODE_SHOW) && (rotAngle>DEG_PER_LINE)) {
+    if ( (!staff.paused) && (rotAngle>DEG_PER_LINE)) {
         staff.showNextLine();
     }
 }

@@ -5,7 +5,6 @@ Adafruit_Sensor *accel, *gyro;
 
 bool IMUbegin(uint8_t address){
     if (! mpu.begin(address)) {
-        Serial.begin(9600);
         Serial.println("Failed to find MPU6050 chip");
         return false;
     }

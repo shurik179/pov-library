@@ -1,11 +1,11 @@
-#include "staff.h"
+#include "pov.h"
 
-POVstaff::POVstaff(uint16_t n, CRGB * l)
+POV::POV(uint16_t n, CRGB * l)
     :numPixels(n), paused(false) {
         leds=l;
     }
 
-void POVstaff::begin(uint8_t mode){
+void POV::begin(uint8_t mode){
     //Serial.println("Starting...")
     _mode=mode;
 
@@ -19,7 +19,7 @@ void POVstaff::begin(uint8_t mode){
     }
     if (_mode==MODE_UPLOAD) {
         msc_init();
-        Serial.begin(115200);
+        Serial.begin(9600);
         delay(1000);
         Serial.println("Mass storage device started ");
         Serial.print("JEDEC ID: "); Serial.println(flash.getJEDECID(), HEX);
@@ -30,7 +30,7 @@ void POVstaff::begin(uint8_t mode){
     FastLED.show();
 }
 
-void POVstaff::showValue(float v){
+void POV::showValue(float v){
     uint16_t level=0;
     uint8_t i, value;
     uint32_t c;
@@ -52,28 +52,27 @@ void POVstaff::showValue(float v){
     lastLineUpdate=micros();
 }
 
-void POVstaff::clear(){
+void POV::blank(){
     FastLED.clear(true);
     FastLED.show();
-    lastLineUpdate=micros();
-    imageList.first();
-    currentLine=0;
 }
 
-void POVstaff::show(){
+
+
+void POV::show(){
     FastLED.show();
     lastLineUpdate=micros();
 }
 
-void POVstaff::setBrightness(uint8_t b){
+void POV::setBrightness(uint8_t b){
     FastLED.setBrightness(b);
 }
 
-void POVstaff::setPixel(uint16_t i, uint32_t c){
+void POV::setPixel(uint16_t i, uint32_t c){
     leds[i]=c;
 }
 
-void POVstaff::showLine(byte * line, uint16_t size){
+void POV::showLine(byte * line, uint16_t size){
     uint16_t i,pos;
     uint8_t r,g,b;
     for (i=0; i<numPixels; i++) {
@@ -92,7 +91,7 @@ void POVstaff::showLine(byte * line, uint16_t size){
     lastLineUpdate=micros();
 }
 
-void POVstaff::blink(CRGB color){
+void POV::blink(CRGB color){
     uint16_t i;
 
     //repeat twice
@@ -108,14 +107,14 @@ void POVstaff::blink(CRGB color){
     FastLED.clear(true);
 }
 
-void POVstaff::addImage(char * filename, uint16_t duration){
+void POV::addImage(char * filename, uint16_t duration){
     BMPimage * ptr;
     ptr=imageList.addImage(filename,duration);
     imageList.current()->load();
     currentLine=0;
 }
 
-uint8_t POVstaff::addImageList(char * filename){
+uint8_t POV::addImageList(char * filename){
     currentLine=0;
     uint8_t count=imageList.addFromFile(filename);
     if (count) {
@@ -126,7 +125,19 @@ uint8_t POVstaff::addImageList(char * filename){
 
 }
 
-void POVstaff::nextImage(){
+void POV::clearImageList(){
+    imageList.reset();
+    currentLine=0;
+}
+
+void POV::firstImage(){
+    imageList.current()->unload();
+    imageList.first();
+    imageList.current()->load();
+    currentLine=0;
+}
+
+void POV::nextImage(){
     if (paused) return;
     imageList.current()->unload();
     imageList.next();
@@ -134,7 +145,7 @@ void POVstaff::nextImage(){
     currentLine=0;
 }
 
-int16_t POVstaff::showNextLine(){
+int16_t POV::showNextLine(){
     BMPimage * currentImg=imageList.current();
     if (currentImg==NULL) return 0;
     if (paused) return currentLine;

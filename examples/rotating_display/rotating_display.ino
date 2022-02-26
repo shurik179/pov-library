@@ -1,6 +1,6 @@
 /*
- * This file is part of POV Staff project by Alexander Kirillov <shurik179@gmail.com>
- * See github.com/shurik179/povstaff for details
+ * This file is part of POV library   by Alexander Kirillov <shurik179@gmail.com>
+ * See github.com/shurik179/pov-library for details
  * Distributed under the terms of MIT license; see LICENSE file in the repository for details.
  *
  *  Requires the following libraries:
@@ -10,7 +10,9 @@
  *  Sd_Fat (adafruit fork)
  *
  *
- * This is a simple test of the POV library. It functions as follows:
+ * This is a test of the POV library using a Hall effect sensor or a similar
+ *    input as a trigger. It functions as follows:
+ *
  *  - if at startup pin PIN_MODE_SELECT (defined below) is pulled low, it puts the staff in
  *    image upload mode; if the staff is connected to the computer by USB cable, it appears
  *    as an external drive so you can drag and drop your BMP images to it
@@ -19,7 +21,7 @@
  *    select the image edit the line #define IMAGE below. The frame rate (i.e. how many
  *    lines to show pere second) is determined by value of LINES_PER_SEC below
  *    It shows the image once and then waits until pin PIN_TRIGGER is pulled low
- *    after which it restarts the image
+ *    after which it restarts the image.
  *
  *    This is common method for rotating displays: PIN_TRIGGER would be
  *    connected to a sensor (e.g. a Hall effect sensor) which is triggered as
@@ -37,7 +39,7 @@
  *  flash memory, using SdFat_format example sketch from Sd_Fat library (Adafruit fork)
  */
 #include <FastLED.h>
-#include "staff.h"
+#include <pov.h>
 //number of pixels in your strip/wand
 #define NUM_PIXELS 30
 // Strip type. Common options are DOTSTAR (APA102, SK9822) and NEOPIXEL (WS2812B, SK6812 and
@@ -68,8 +70,8 @@ uint32_t interval=1000000/LINES_PER_SEC; //interval between lines of image, in m
 
 /* Global Variables */
 CRGB leds[NUM_PIXELS];
-POVstaff staff(NUM_PIXELS, leds);
-uint32_t blackout_end=0;   //for debouncing trigger reading; time to start checking again, in ms
+POV staff(NUM_PIXELS, leds);
+uint32_t blackoutEnd=0;   //for debouncing trigger reading; time to start checking again, in ms
 
 
 
@@ -91,6 +93,8 @@ void setup(){
     //note: in this case, there should be no Serial.begin() before this, and no delay()
     if (digitalRead(PIN_MODE_SELECT)==LOW) {
         staff.begin(MODE_UPLOAD);
+        //do nothing else, do not run loop() -- just let TinyUSB do its job
+        while (1) yield();
     } else {
         //otherwise, regular show
         staff.begin(MODE_SHOW);
@@ -104,30 +108,29 @@ void setup(){
 
 }
 
+//note that loop() will only run in MODE_SHOW
 void loop(){
-    if (staff.mode()==MODE_SHOW) {
         checkTrigger();
         updateStaff();
-    }
 }
 
 void checkTrigger(){
-    if ( (millis()>blackout_end) && (digitalRead(PIN_TRIGGER)== LOW)  ){
+    if ( (millis()>blackoutEnd) && (digitalRead(PIN_TRIGGER)== LOW)  ){
         //trigger acivated
-        //start blackout
-        blackout_end=millis()+BLACKOUT_TIME;
+        //start blackout, for debouncing
+        blackoutEnd=millis()+BLACKOUT_TIME;
         staff.restartImage();
         staff.paused=false;
     }
 }
 
 void updateStaff(){
-    int16_t line_no;
+    int16_t lineNumber;
     if ( !staff.paused   && (staff.timeSinceUpdate()>interval)  ) {
-        line_no = staff.showNextLine();
-        if (line_no == 0) {
+        lineNumber = staff.showNextLine();
+        if (lineNumber == 0) {
             staff.paused = true;
-            staff.clear();
+            staff.blank();
         }
     }
 }

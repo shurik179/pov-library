@@ -5,17 +5,21 @@ Work in progress; not ready for public use yet.
 
 
 This library is for creating Persistence of Vision displays using NeoPixel (WS2812B)
-or DotStar (APA102) individually addressable LED strips.
+or DotStar (APA102) individually addressable LED strips. For smooth effects,
+DotStars are preferred, as they have much higher refresh rates. 
 
 The library  is intended for use with boards that have built-in flash memory.
 It supports two modes:
 
 *  **Upload mode**. In this mode, the board, when connected to a computer via USB,
-   appears as external USB drive, allowing the user to upload images in bitmap
+   appears as an external USB drive, allowing the user to upload images in bitmap
    format. One can also upload a text file with list of images and durations.
+   Note: it is expected that you have already created the FAT filesystem on your
+   flash memory, using `SdFat_format` example sketch from Sd_Fat library (Adafruit fork)
+
 
 *  **Show mode**. In this mode, the board reads the image(s) from the flash memory
-   and shows them on LED strips one line at a time. Normally, the LED strips
+   and shows them on the LED strip one line at a time. Normally, the LED strip
    would be mounted on a rotating staff/wand/fan blade which would create
    persistence of vision illusion.
 
@@ -50,7 +54,7 @@ You will  need to rotate images 90 degrees.
 
 
 Please note that the same color (i.e. the same RGB values) can look quite
-different on the screen of your computer and on LED strip. Experiment with
+different on your computer monitor  and on LED strip. Experiment with
 colors to get some feel for it.
 
 
@@ -74,36 +78,43 @@ choice.
 ## API
 
 
-The library defines class *POVstaff* which describes your POV device (staff, poi,...).
-It provides the following methods:
+The library defines class *POV* which describes your POV device (LED strip,
+staff, poi,...). It provides the following methods:
 
 ### Initialization
 
-POV library is based on FastLED library. To create a POVstaff object, you need
-first to create a LED strip object as described in FastLED documentation, and
-then pass the pointer to it to POVstaff object. You will also need to use
-`FastLED.addLeds` command to initialize the LED strip; in particular, this is
+POV library is based on FastLED library. To create a POV object, you need
+first to create an array to hold LED strip colors as described in
+[FastLED documentation](https://github.com/FastLED/FastLED/wiki/Basic-usage), and
+then pass the pointer to it to POV object. You will also need to use
+`FastLED.addLeds` command to initialize the LED array; in particular, this is
 where you specify which pins you are using  for controlling the strip (if not
-using hardware SPI). 
+using hardware SPI). Basic usage example is below.
 
 ```c++
+#define NUM_PIXELS 30
 CRGB leds[NUM_PIXELS];
-POVstaff staff(NUM_PIXELS, leds);
+POV staff(NUM_PIXELS, leds);
 FastLED.addLeds<LED_TYPE, COLOR_ORDER>(leds, NUM_PIXELS);
 ```
 
-* `POVstaff(uint16_t length, CRGB * l)`: initializer. Parameter `length` is
-  number of pixels and `l` is a pointer to a LED strip object as described in
+* `POV(uint16_t length, CRGB * l)`: initializer. Parameter `length` is
+  number of pixels and `l` is a pointer to a LED color array  as described in
   FastLED documentation.     
 
-* `void begin(uint8_t mode)`: start the POV object. Mode can be one of two defined constants:
-  `MODE_SHOW` or `MODE_UPLOAD`.
+* `void begin(uint8_t mode)`: start the POV object in given mode. Mode should  
+  be one of two defined constants: `MODE_SHOW` or `MODE_UPLOAD`.
 
 * `uint8_t mode()`: return current mode
 
+* `paused`: this boolean property can be used to indicate that the staff should
+  be paused. It is not used by any of the functions below - you will have to
+  implement your own logic. Note that it is  a property, not a function. By
+  default, set to `false`.
+
 ### Low-level pixel manipulation
 
-* `void clear()`: clear the LED strip, setting all pixels off
+* `void blank()`: clear the LED strip, setting all pixels off
 
 * `void setBrightness(uint8_t b)`: set the brightness for all LEDs. Brightness
   ranges from 0 to 255.  
@@ -117,23 +128,30 @@ FastLED.addLeds<LED_TYPE, COLOR_ORDER>(leds, NUM_PIXELS);
 * `void show()`: push the pixel colors, set by `setPixel()` commands, to LED strip.
 
 
-* `void blink(CRGB color=CRGB::Red)`: quickly blink each 8th LED using specified color, for "I am alive" indication
+* `void blink(CRGB color=CRGB::Red)`: quickly blink each 8th LED using specified
+  color, for "I am alive" indication. By default, it uses red color, but you can
+  specify any  color using FastLED CRGB color definition. For a list of
+  predefined colors, see https://github.com/FastLED/FastLED/wiki/Pixel-reference#predefined-colors-list
 
 
 * `void showValue(float v)`: show a value (0-1.0), using the LED strip as bar graph.
+  Uses color gradient from red to green.
 
 * `void showLine(byte * line, uint16_t size)`: Shows one line on LED strip. `line` should be
   pointer to array which holds  pixel colors: **3** bytes per pixel, in BGR order.
   Note: it is 3 bytes, not 4!!!  `size` should be size of array (number of pixels, not number of bytes).
+  If array size is less than number of pixels on LED strip, the remaining pixels are blanked.
 
 ### Working with images and image lists
 
-The POVstaff object at all time maintains a list of images to be shown together
-with durations (in seconds). You can add images to this list, move to next image,
-etc. It also keeps track of current line in the image currently shown.
+The POV object at all times maintains a list of images to be shown together
+with durations (in seconds). You can add images present on flash memory to this
+list, move to next image, etc. It also keeps track of current line in the
+image currently shown. These operations do not change the image files present
+on the flash memory - they just modify the **list** of images to be shown.
 
 * `void addImage(char * filename, uint16_t duration=0)`:
-  Read  image from file  and adds it to  the end of the  list, making it current
+  Read  image from file  and adds it to  the end of the  imagelist, making it current
   image
 
 * `uint8_t addImageList(char * filename)`: read list of images from imagelist
@@ -152,17 +170,24 @@ etc. It also keeps track of current line in the image currently shown.
 * `uint16_t currentDuration()`: duration specified for current image in POVstaff
   image list.
 
+ *  `void resetImageList()`: remove all images from POVstaff imagelist. Doesn't
+   delete the actual image files from the flash.
+
+
+
 ### Showing images
 
-* `int16_t showNextLine()`:  Show next line of current image in POVstaff image list.
+* `int16_t showNextLine()`:  Show next horizontal line of current image in POVstaff image list.
   Returns the index of next line to be shown  (after showing given line)
   If it returns 0, it means we have completed showing the image and
-  the next call will start showing it again.
-
-
-* `void restartImage(currentLine = 0; lastLineUpdate=micros())`: restart
-  showing the current image, starting with given line
+  the next call will start showing it again.   If image width  is less than
+  the number of pixels on LED strip, the remaining pixels are blanked.
 
 
 
-* `uint32_t timeSinceUpdate()`: time since strip was last updated, in micro seconds
+* `void restartImage()`: "rewinds" the current image to line 0, so that next
+  `showNextLine()` command would show line 0.
+
+
+
+* `uint32_t timeSinceUpdate()`: time since strip was last updated, in microseconds.

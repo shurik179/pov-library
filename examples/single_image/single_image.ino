@@ -1,5 +1,5 @@
 /*
- * This file is part of POV Staff project by Alexander Kirillov <shurik179@gmail.com>
+ * This file is part of POV library by Alexander Kirillov <shurik179@gmail.com>
  * See github.com/shurik179/pov-library for details
  * Distributed under the terms of MIT license; see LICENSE file in the repository for details.
  *
@@ -28,7 +28,7 @@
  *  flash memory, using SdFat_format example sketch from Sd_Fat library (Adafruit fork)
  */
 #include <FastLED.h>
-#include "staff.h"
+#include <pov.h>
 //number of pixels in your strip/wand
 #define NUM_PIXELS 30
 // Strip type. Common options are DOTSTAR (APA102, SK9822) and NEOPIXEL (WS2812B, SK6812 and
@@ -53,7 +53,7 @@ uint32_t interval=1000000/LINES_PER_SEC; //interval between lines of image, in m
 
 /* Global Variables */
 CRGB leds[NUM_PIXELS];
-POVstaff staff(NUM_PIXELS, leds);
+POV staff(NUM_PIXELS, leds);
 
 
 
@@ -74,6 +74,9 @@ void setup(){
     //note: in this case, there should be no Serial.begin() before this, and no delay()
     if (digitalRead(PIN_MODE_SELECT)==LOW) {
         staff.begin(MODE_UPLOAD);
+        //do nothing else, do not run loop() -- just let TinyUSB do its job
+        while (1) yield();
+
     } else {
         //otherwise, regular show
         staff.begin(MODE_SHOW);
@@ -86,9 +89,9 @@ void setup(){
 
 
 }
-
+//note that loop() will only run in MODE_SHOW
 void loop(){
-    if ((staff.mode()==MODE_SHOW) && (staff.timeSinceUpdate()>interval)) {
+    if (staff.timeSinceUpdate()>interval) {
         staff.showNextLine();
     }
 }

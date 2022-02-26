@@ -1,5 +1,5 @@
 /*
- * This file is part of POV Staff project by Alexander Kirillov <shurik179@gmail.com>
+ * This file is part of POV library   by Alexander Kirillov <shurik179@gmail.com>
  * See github.com/shurik179/pov-library for details
  * Distributed under the terms of MIT license; see LICENSE file in the repository for details.
  *
@@ -19,7 +19,7 @@
  *    at the root of file system and starts showing images from that list
  *    showing each image for the duration written in the imagelist file
  *    The frame rate (i.e. how many lines to show per second) is determined
- *    by value of LINES_PER_SEC below*\
+ *    by value of LINES_PER_SEC below
  *
  *
  * Before uploading the sketch to the staff, make sure to change the #define'd values to match your setup:
@@ -31,7 +31,7 @@
  *
  */
 #include <FastLED.h>
-#include "staff.h"
+#include <pov.h>
 //number of pixels in your strip/wand
 #define NUM_PIXELS 30
 // Strip type. Common options are DOTSTAR (APA102, SK9822) and NEOPIXEL (WS2812B, SK6812 and
@@ -56,7 +56,7 @@ uint32_t interval=1000000/LINES_PER_SEC; //interval between lines of image, in m
 
 /* Global Variables */
 CRGB leds[NUM_PIXELS];
-POVstaff staff(NUM_PIXELS, leds);
+POV staff(NUM_PIXELS, leds);
 uint32_t nextImageChange=0; //in milliseconds
 
 
@@ -77,6 +77,8 @@ void setup(){
     //note: in this case, there should be no Serial.begin() before this, and no delay()
     if (digitalRead(PIN_MODE_SELECT)==LOW) {
         staff.begin(MODE_UPLOAD);
+        //do nothing else, do not run loop() -- just let TinyUSB do its job
+        while (1) yield();
     } else {
         //otherwise, regular show
         staff.begin(MODE_SHOW);
@@ -94,16 +96,14 @@ void setup(){
 }
 
 void loop(){
-    if (staff.mode == MODE_SHOW) {
-        if (millis()>nextImageChange){
-            //time to switch to next image
-            staff.nextImage();
-            //determine when we will need to change the image
-            nextImageChange=millis()+staff.currentDuration()*1000;
-        }
-        //check if it time to show next line
-        if (staff.timeSinceUpdate()>interval) {
-            staff.showNextLine();
-        }
+    if (millis()>nextImageChange){
+        //time to switch to next image
+        staff.nextImage();
+        //determine when we will need to change the image
+        nextImageChange=millis()+staff.currentDuration()*1000;
+    }
+    //check if it time to show next line
+    if (staff.timeSinceUpdate()>interval) {
+        staff.showNextLine();
     }
 }
