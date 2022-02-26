@@ -1,14 +1,12 @@
 # POV Library
 Arduino library for Persistence of Vision (POV) projects.
 
-Work in progress; not ready for public use yet.
-
 
 This library is for creating Persistence of Vision displays using NeoPixel (WS2812B)
 or DotStar (APA102) individually addressable LED strips. For smooth effects,
-DotStars are preferred, as they have much higher refresh rates. 
+DotStars are strongly preferred, as they have much higher refresh rates.
 
-The library  is intended for use with boards that have built-in flash memory.
+The library  is intended for use with boards that contain  flash memory chips.
 It supports two modes:
 
 *  **Upload mode**. In this mode, the board, when connected to a computer via USB,
@@ -30,17 +28,19 @@ The library uses `Adafruit_TinyUSB` library; thus, it can only be used with
 boards supported by this library, such as M4 and RP2040-based boards. Full
 list can be found at https://github.com/adafruit/Adafruit_TinyUSB_Arduino
 
-
+We recommend Adafruit Itsy Bitsy RP2040 board as a great and inexpensive option.
 
 ## Image format
-Individual images should be uploaded to the root directory of the flash drive.
+
+After starting the POV object in upload mode, individual images should be
+uploaded to the root directory of the flash drive.
 
 * Images must be in bitmap (BMP) format, with 24 bit color depth. Use any
   software you like to convert images in other formats to bmp - e.g. you can use
   Microsoft Paint 3D.
 
 * images are shown one **horizontal** line at a time. Thus, image width must
-  match the number of LEDs on your strip.
+  match the number of LEDs on your strip. If necessary, rotate the image in software.
 
 * Maximal image size is 21000 pixels (e.g., it is enough for  72x288 or a 144x144
   pixel image).
@@ -54,8 +54,10 @@ You will  need to rotate images 90 degrees.
 
 
 Please note that the same color (i.e. the same RGB values) can look quite
-different on your computer monitor  and on LED strip. Experiment with
-colors to get some feel for it.
+different on your computer monitor  and on LED strip. POV library uses FastLED
+library that tries to provide some color correction (we use `TypicalSMD5050`
+correction setting), but there will  still  be a significant difference.  
+Experiment with colors to get some feel for it.
 
 
 ## Imagelist format
@@ -151,8 +153,8 @@ image currently shown. These operations do not change the image files present
 on the flash memory - they just modify the **list** of images to be shown.
 
 * `void addImage(char * filename, uint16_t duration=0)`:
-  Read  image from file  and adds it to  the end of the  imagelist, making it current
-  image
+  Read  image from file  and add it to  the end of the  imagelist, making it current
+  image. Duration must be in seconds (whole number).
 
 * `uint8_t addImageList(char * filename)`: read list of images from imagelist
   file and add it to the end of POVstaff  image list. Imagelist file should
@@ -162,22 +164,26 @@ on the flash memory - they just modify the **list** of images to be shown.
   the end of image list, continue from first image. Note: it doesn't start
   showing lines for the image yet - use `showNextLine()` for that.
 
+* `void firstImage()`: go to the beginning of the list, making the first image
+  current.  Note: it doesn't start
+  showing lines for the image yet - use `showNextLine()` for that.
+
 
 * `BMPimage * currentImage()`: returns pointer to current image as `BMPimage`
   object. `BMPimage` class holds properties of the image (filename, image  
   dimensions, etc); it is described in `bmpimage.h` source file.
 
-* `uint16_t currentDuration()`: duration specified for current image in POVstaff
-  image list.
+* `uint16_t currentDuration()`: duration specified for current image in the
+  imagelist. If no duration has been specified, returns 0.
 
- *  `void resetImageList()`: remove all images from POVstaff imagelist. Doesn't
+ *  `void resetImageList()`: remove all images from the  imagelist. Doesn't
    delete the actual image files from the flash.
 
 
 
 ### Showing images
 
-* `int16_t showNextLine()`:  Show next horizontal line of current image in POVstaff image list.
+* `int16_t showNextLine()`:  Show next horizontal line of current image in the  imagelist.
   Returns the index of next line to be shown  (after showing given line)
   If it returns 0, it means we have completed showing the image and
   the next call will start showing it again.   If image width  is less than
